@@ -251,11 +251,35 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (!message.value.trim() || message.value.trim().length < 5) { setFieldError(message, true); valid = false; } else { setFieldError(message, false); }
 
-    if (valid) {
-      // NOTE: This is client-side only. Connect to a backend or a form
-      // service (Formspree, EmailJS, etc.) to actually deliver messages.
-      formSuccess.classList.add('show');
-      form.reset();
+        if (valid) {
+      const submitBtn = form.querySelector('button[type="submit"]');
+      const originalBtnText = submitBtn.innerHTML;
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = 'Sending...';
+
+      fetch(form.action, {
+        method: 'POST',
+        body: new FormData(form),
+        headers: { 'Accept': 'application/json' }
+      })
+        .then(response => {
+          if (response.ok) {
+            formSuccess.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg> Thanks! Your message has been sent — I\'ll get back to you soon.';
+            formSuccess.classList.add('show');
+            form.reset();
+          } else {
+            formSuccess.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg> Something went wrong. Please try again or email me directly.';
+            formSuccess.classList.add('show');
+          }
+        })
+        .catch(() => {
+          formSuccess.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg> Something went wrong. Please check your connection and try again.';
+          formSuccess.classList.add('show');
+        })
+        .finally(() => {
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = originalBtnText;
+        });
     } else {
       const firstError = form.querySelector('.field.error input, .field.error textarea');
       if (firstError) firstError.focus();
