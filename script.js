@@ -251,7 +251,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (!message.value.trim() || message.value.trim().length < 5) { setFieldError(message, true); valid = false; } else { setFieldError(message, false); }
 
-        if (valid) {
+    if (valid) {
+      // Google Sheet এ record রাখার জন্য
+      fetch('https://script.google.com/macros/s/AKfycbxY2flvuXr_X_KZvvGSB4OIs4KC_y9oy5_p0MErqsw5oJ84liQuIzc7sNdprBeMWrLn/exec', {
+        method: 'POST',
+        body: new FormData(form)
+      }).catch(() => {});
+
       const submitBtn = form.querySelector('button[type="submit"]');
       const originalBtnText = submitBtn.innerHTML;
       submitBtn.disabled = true;
